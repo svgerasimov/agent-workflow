@@ -1,0 +1,12 @@
+{"requirements":[
+ {"id":"ok-multiline","expect":"ok","sources":[{"page":2,"quote":"Для выбора доступны даты за 5 дней до текущей даты"}]},
+ {"id":"ok-yo-e","expect":"ok","sources":[{"page":1,"quote":"основной учетной записи. Для доступа к сервису смените учётную запись"}]},
+ {"id":"ok-ellipsis","expect":"ok","sources":[{"page":1,"quote":"Сервис доступен только ... смените учетную запись"}]},
+ {"id":"ok-hyphenation","expect":"ok","sources":[{"page":2,"quote":"Заявка на отпуск отправляется сразу"}]},
+ {"id":"ok-table-dashes","expect":"ok","sources":[{"page":2,"quote":"Основной оплачиваемый - (северный)"}]},
+ {"id":"ok-same-phrase-second-page","expect":"ok","sources":[{"page":2,"quote":"Учебный оплачиваемый"}]},
+ {"id":"wrong-page","expect":"wrong_page","sources":[{"page":1,"quote":"Для выбора доступны даты за 5 дней до текущей даты"}]},
+ {"id":"invented","expect":"not_found","sources":[{"page":2,"quote":"не позднее трёх месяцев со дня рождения"}]},
+ {"id":"distorted","expect":"not_found","sources":[{"page":2,"quote":"бэк формирует JSON со всеми данными из задания"}]},
+ {"id":"missing-file","expect":"file_missing","sources":[{"file":"other.pdf","page":1,"quote":"Сервис доступен только"}]}
+]}
