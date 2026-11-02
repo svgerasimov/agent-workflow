@@ -1,21 +1,32 @@
 #!/bin/sh
 # Ставит скиллы agent-workflow.
-#   ./install.sh                  - глобально, в ~/.claude/skills (работают во всех проектах на этой машине)
-#   ./install.sh <путь к проекту> - только в проект, в <проект>/.claude/skills
+#   ./install.sh                  - в проект, где стоишь (в ./.claude/skills)
+#   ./install.sh <путь к проекту> - в указанный проект
+#   ./install.sh --global         - в ~/.claude/skills, для всех проектов на машине. Осторожно: личные
+#                                   скиллы перекрывают проектные с тем же именем (intake, implement...)
 #   ./install.sh --rules          - плюс личные правила общения в ~/.claude/rules
 # Повторный запуск обновляет скиллы до версии из репозитория.
 set -e
 here=$(cd "$(dirname "$0")" && pwd)
 rules=0
-target="$HOME/.claude/skills"
+target="$(pwd)/.claude/skills"
 for a in "$@"; do
   case "$a" in
     --rules) rules=1 ;;
+    --global) target="$HOME/.claude/skills" ;;
     *) target="$(cd "$a" && pwd)/.claude/skills" ;;
   esac
 done
 
 mkdir -p "$target"
+for s in "$here"/skills/*/; do
+  name=$(basename "$s")
+  if [ "$target" = "$HOME/.claude/skills" ]; then
+    for p in "$HOME"/dev/*/.claude/skills/"$name"; do
+      [ -d "$p" ] && echo "внимание: в $p свой $name, глобальный его перекроет"
+    done
+  fi
+done
 for s in "$here"/skills/*/; do
   name=$(basename "$s")
   rm -rf "$target/$name"
