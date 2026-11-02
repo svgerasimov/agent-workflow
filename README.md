@@ -19,7 +19,7 @@
 ## Установка
 
 ```sh
-git clone git@github.com:svgerasimov/agent-workflow.git ~/dev/agent-workflow
+git clone https://github.com/svgerasimov/agent-workflow.git ~/dev/agent-workflow
 cd ~/dev/my-project
 ~/dev/agent-workflow/install.sh            # скиллы в .claude/skills этого проекта
 ```
