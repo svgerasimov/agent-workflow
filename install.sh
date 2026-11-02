@@ -1,38 +1,44 @@
 #!/bin/sh
-# Ставит скиллы agent-workflow.
-#   ./install.sh                  - в проект, где стоишь (в ./.claude/skills)
-#   ./install.sh <путь к проекту> - в указанный проект
-#   ./install.sh --global         - в ~/.claude/skills, для всех проектов на машине. Осторожно: личные
-#                                   скиллы перекрывают проектные с тем же именем (intake, implement...)
+# Ставит agent-workflow.
+#   ./install.sh                  - глобально только /setup-workflow (в ~/.claude/skills) с архивом остальных
+#                                   скиллов внутри. В проекте /setup-workflow сам распакует их в .claude/skills
+#                                   и спрячет от git.
+#   ./install.sh <путь к проекту> - сразу все скиллы в проект, без /setup-workflow-распаковки
 #   ./install.sh --rules          - плюс личные правила общения в ~/.claude/rules
-# Повторный запуск обновляет скиллы до версии из репозитория.
+# Остальные скиллы глобально не ставятся: личные скиллы перекрывают проектные с тем же именем,
+# и чужой /intake или /implement в каком-то проекте перестал бы работать.
+# Повторный запуск обновляет до версии из репозитория.
 set -e
 here=$(cd "$(dirname "$0")" && pwd)
 rules=0
-target="$(pwd)/.claude/skills"
+project=""
 for a in "$@"; do
   case "$a" in
     --rules) rules=1 ;;
-    --global) target="$HOME/.claude/skills" ;;
-    *) target="$(cd "$a" && pwd)/.claude/skills" ;;
+    *) project="$(cd "$a" && pwd)" ;;
   esac
 done
 
-mkdir -p "$target"
-for s in "$here"/skills/*/; do
-  name=$(basename "$s")
-  if [ "$target" = "$HOME/.claude/skills" ]; then
-    for p in "$HOME"/dev/*/.claude/skills/"$name"; do
-      [ -d "$p" ] && echo "внимание: в $p свой $name, глобальный его перекроет"
-    done
-  fi
-done
-for s in "$here"/skills/*/; do
-  name=$(basename "$s")
-  rm -rf "$target/$name"
-  cp -R "$s" "$target/$name"
-  echo "скилл $name → $target/$name"
-done
+if [ -n "$project" ]; then
+  target="$project/.claude/skills"
+  mkdir -p "$target"
+  for s in "$here"/skills/*/; do
+    name=$(basename "$s")
+    rm -rf "$target/$name"
+    cp -R "$s" "$target/$name"
+    echo "скилл $name → $target/$name"
+  done
+else
+  dst="$HOME/.claude/skills/setup-workflow"
+  mkdir -p "$HOME/.claude/skills"
+  rm -rf "$dst"
+  cp -R "$here/skills/setup-workflow" "$dst"
+  # tar, а не папки: SKILL.md внутри архива Claude Code не подхватит как отдельные скиллы
+  (cd "$here/skills" && ls -d */ | sed 's#/##' | grep -v '^setup-workflow$' | xargs tar -czf "$dst/bundle.tar.gz")
+  (cd "$here" && git rev-parse --short HEAD 2>/dev/null) > "$dst/bundle.version" || true
+  echo "скилл setup-workflow → $dst"
+  echo "в архиве: $(tar -tzf "$dst/bundle.tar.gz" | grep '/SKILL.md$' | sed 's#/SKILL.md##' | tr '\n' ' ')"
+fi
 
 if [ $rules = 1 ]; then
   mkdir -p "$HOME/.claude/rules"
@@ -43,10 +49,9 @@ if [ $rules = 1 ]; then
 fi
 
 missing=""
-for s in to-spec to-tickets tdd code-review codebase-design to-questionnaire wait-what; do
-  [ -d "$HOME/.claude/skills/$s" ] || [ -d "$target/$s" ] || missing="$missing $s"
+for s in to-spec to-tickets tdd code-review codebase-design to-questionnaire wait-what grill-with-docs; do
+  [ -d "$HOME/.claude/skills/$s" ] || missing="$missing $s"
 done
-if [ -d "$HOME/.claude/skills/grill-with-docs" ] || [ -d "$target/grill-with-docs" ]; then :; else missing="$missing grill-with-docs"; fi
 if [ -n "$missing" ]; then
   echo
   echo "Не хватает скиллов Покока:$missing"
@@ -54,4 +59,4 @@ if [ -n "$missing" ]; then
 fi
 
 echo
-echo "Дальше: открой Claude Code в корне проекта и запусти /setup-workflow"
+echo "Дальше: в корне проекта запусти claude и внутри набери /setup-workflow"
