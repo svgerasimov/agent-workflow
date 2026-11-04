@@ -5,7 +5,8 @@
 ## Папки
 
 - Фичи: `context/features/<feature>/` (snake_case)
-- Внутри фичи: `source/` (сырьё), `intake/`, `requirements.md`, `00-intake-<feature>.md`, `01-prd-<feature>.md`, `solution-design.md`, `tickets/` (открытые) и `tickets/done/`, `test-cases/`
+- Внутри фичи: `source/` (сырьё), `intake/`, `requirements.md`, `00-intake-<feature>.md`, `01-prd-<feature>.md`, `solution-design.md`, `test-cases/`
+- Тикеты: `tickets/` внутри фичи (открытые в корне, закрытые в `done/`)
 - Спеки макетов: <путь или "нет">
 - Глоссарий: `<папка фич>/<feature>/GLOSSARY.md`
 - Журнал проколов: `docs/agents/incidents.md`
