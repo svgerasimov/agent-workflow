@@ -9,7 +9,7 @@
 - Спеки макетов: <путь или "нет">
 - Глоссарий: `<папка фич>/<feature>/GLOSSARY.md`
 - Журнал проколов: `docs/agents/incidents.md`
-- Эвалы `/intake`: `docs/agents/intake-evals/`
+- Клон agent-workflow (там же эвалы скиллов, вне git): `~/dev/agent-workflow`
 - В git: <да / нет - агентские папки исключены через .git/info/exclude>
 
 ## Фичи и тикеты

@@ -26,16 +26,19 @@ if [ -n "$project" ]; then
     name=$(basename "$s")
     rm -rf "$target/$name"
     cp -R "$s" "$target/$name"
+    # кейсы эвалов с внутренними ТЗ остаются только в клоне
+    rm -rf "$target/$name/evals/cases"/0* "$target/$name/evals/runs" "$target/$name/evals/LOG.md"
     echo "скилл $name → $target/$name"
   done
+  echo "$(cat "$here/VERSION") ($(cd "$here" && git rev-parse --short HEAD 2>/dev/null))" > "$target/.agent-workflow-version"
 else
   dst="$HOME/.claude/skills/setup-workflow"
   mkdir -p "$HOME/.claude/skills"
   rm -rf "$dst"
   cp -R "$here/skills/setup-workflow" "$dst"
   # tar, а не папки: SKILL.md внутри архива Claude Code не подхватит как отдельные скиллы
-  (cd "$here/skills" && ls -d */ | sed 's#/##' | grep -v '^setup-workflow$' | xargs tar -czf "$dst/bundle.tar.gz")
-  (cd "$here" && git rev-parse --short HEAD 2>/dev/null) > "$dst/bundle.version" || true
+  (cd "$here/skills" && ls -d */ | sed 's#/##' | grep -v '^setup-workflow$' | xargs tar -czf "$dst/bundle.tar.gz" --exclude='*/evals/cases/0*' --exclude='*/evals/runs' --exclude='*/evals/LOG.md')
+  echo "$(cat "$here/VERSION") ($(cd "$here" && git rev-parse --short HEAD 2>/dev/null))" > "$dst/bundle.version"
   echo "скилл setup-workflow → $dst"
   echo "в архиве: $(tar -tzf "$dst/bundle.tar.gz" | grep '/SKILL.md$' | sed 's#/SKILL.md##' | tr '\n' ' ')"
 fi
